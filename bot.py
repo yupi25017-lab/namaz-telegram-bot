@@ -1,34 +1,51 @@
+import os
 import requests
 import telebot
-import os
-from datetime import datetime, timedelta
+from datetime import datetime
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
-CITY = os.getenv("CITY")
-COUNTRY = os.getenv("COUNTRY")
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
-url = f"https://api.aladhan.com/v1/timingsByCity?city={CITY}&country={COUNTRY}&method=2"
-data = requests.get(url).json()
-timings = data["data"]["timings"]
+places = [
+    ("Mecca", "Saudi Arabia", "🇸🇦 Мекка"),
+    ("Istanbul", "Turkey", "🇹🇷 Стамбул"),
+    ("Tashkent", "Uzbekistan", "🇺🇿 Ташкент"),
+    ("Moscow", "Russia", "🇷🇺 Москва"),
+    ("Baku", "Azerbaijan", "🇦🇿 Баку"),
+    ("Almaty", "Kazakhstan", "🇰🇿 Алматы"),
+    ("Cairo", "Egypt", "🇪🇬 Каир"),
+    ("Amman", "Jordan", "🇯🇴 Амман"),
+    ("Rabat", "Morocco", "🇲🇦 Рабат"),
+    ("Jakarta", "Indonesia", "🇮🇩 Джакарта"),
+]
 
-now = datetime.now()
+def get_prayer_times(city, country):
+    url = (
+        "https://api.aladhan.com/v1/timingsByCity"
+        f"?city={city}&country={country}&method=2"
+    )
+    response = requests.get(url)
+    return response.json()["data"]["timings"]
 
-namaz_times = {
-    "Фаджр 🕊": timings["Fajr"],
-    "Зухр ☀️": timings["Dhuhr"],
-    "Аср 🌤": timings["Asr"],
-    "Магриб 🌙": timings["Maghrib"],
-    "Иша 🌌": timings["Isha"]
-}
+def main():
+    today = datetime.now().strftime("%d.%m.%Y")
+    message = f"🕌 Время намаза\n📅 {today}\n\n"
 
-text = f"🕌 *Время намаза*\n📍 {CITY}, {COUNTRY}\n\n"
+    for city_api, country_api, title in places:
+        times = get_prayer_times(city_api, country_api)
 
-for name, time_str in namaz_times.items():
-    text += f"{name}: `{time_str}`\n"
+        message += (
+            f"{title}\n"
+            f"Фаджр: {times['Fajr']}\n"
+            f"Зухр: {times['Dhuhr']}\n"
+            f"Аср: {times['Asr']}\n"
+            f"Магриб: {times['Maghrib']}\n"
+            f"Иша: {times['Isha']}\n\n"
+        )
 
-text += "\n🤲 Пусть Аллах примет ваши молитвы"
+    bot.send_message(CHAT_ID, message)
 
-bot.send_message(CHAT_ID, text, parse_mode="Markdown")
+if __name__ == "__main__":
+    main()
