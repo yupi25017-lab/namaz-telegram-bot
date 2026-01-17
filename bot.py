@@ -9,22 +9,22 @@ CHAT_ID = os.getenv("CHAT_ID")
 bot = telebot.TeleBot(BOT_TOKEN)
 
 places = [
-    ("Mecca", "Saudi Arabia", "🇸🇦 Мекка"),
-    ("Istanbul", "Turkey", "🇹🇷 Стамбул"),
-    ("Tashkent", "Uzbekistan", "🇺🇿 Ташкент"),
-    ("Moscow", "Russia", "🇷🇺 Москва"),
-    ("Baku", "Azerbaijan", "🇦🇿 Баку"),
-    ("Almaty", "Kazakhstan", "🇰🇿 Алматы"),
-    ("Cairo", "Egypt", "🇪🇬 Каир"),
-    ("Amman", "Jordan", "🇯🇴 Амман"),
-    ("Rabat", "Morocco", "🇲🇦 Рабат"),
-    ("Jakarta", "Indonesia", "🇮🇩 Джакарта"),
+    ("Mecca", "Saudi Arabia", "Asia/Riyadh", "🇸🇦 Мекка"),
+    ("Istanbul", "Turkey", "Europe/Istanbul", "🇹🇷 Стамбул"),
+    ("Tashkent", "Uzbekistan", "Asia/Tashkent", "🇺🇿 Ташкент"),
+    ("Moscow", "Russia", "Europe/Moscow", "🇷🇺 Москва"),
+    ("Baku", "Azerbaijan", "Asia/Baku", "🇦🇿 Баку"),
+    ("Almaty", "Kazakhstan", "Asia/Almaty", "🇰🇿 Алматы"),
+    ("Cairo", "Egypt", "Africa/Cairo", "🇪🇬 Каир"),
+    ("Amman", "Jordan", "Asia/Amman", "🇯🇴 Амман"),
+    ("Rabat", "Morocco", "Africa/Casablanca", "🇲🇦 Рабат"),
+    ("Jakarta", "Indonesia", "Asia/Jakarta", "🇮🇩 Джакарта"),
 ]
 
-def get_prayer_times(city, country):
+def get_prayer_times(city, country, tz):
     url = (
         "https://api.aladhan.com/v1/timingsByCity"
-        f"?city={city}&country={country}&method=2"
+        f"?city={city}&country={country}&method=2&timezonestring={tz}"
     )
     response = requests.get(url)
     return response.json()["data"]["timings"]
@@ -33,8 +33,8 @@ def main():
     today = datetime.now().strftime("%d.%m.%Y")
     message = f"🕌 Время намаза\n📅 {today}\n\n"
 
-    for city_api, country_api, title in places:
-        times = get_prayer_times(city_api, country_api)
+    for city_api, country_api, tz, title in places:
+        times = get_prayer_times(city_api, country_api, tz)
 
         message += (
             f"{title}\n"
