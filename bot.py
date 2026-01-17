@@ -1,28 +1,34 @@
 import requests
 import telebot
 import os
+from datetime import datetime, timedelta
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
+CITY = os.getenv("CITY")
+COUNTRY = os.getenv("COUNTRY")
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
-# пример: Мекка
-CITY = "Mecca"
-COUNTRY = "Saudi Arabia"
-
 url = f"https://api.aladhan.com/v1/timingsByCity?city={CITY}&country={COUNTRY}&method=2"
 data = requests.get(url).json()
-
 timings = data["data"]["timings"]
 
-text = (
-    f"🕌 Время намаза ({CITY})\n\n"
-    f"Фаджр: {timings['Fajr']}\n"
-    f"Зухр: {timings['Dhuhr']}\n"
-    f"Аср: {timings['Asr']}\n"
-    f"Магриб: {timings['Maghrib']}\n"
-    f"Иша: {timings['Isha']}"
-)
+now = datetime.now()
 
-bot.send_message(CHAT_ID, text)
+namaz_times = {
+    "Фаджр 🕊": timings["Fajr"],
+    "Зухр ☀️": timings["Dhuhr"],
+    "Аср 🌤": timings["Asr"],
+    "Магриб 🌙": timings["Maghrib"],
+    "Иша 🌌": timings["Isha"]
+}
+
+text = f"🕌 *Время намаза*\n📍 {CITY}, {COUNTRY}\n\n"
+
+for name, time_str in namaz_times.items():
+    text += f"{name}: `{time_str}`\n"
+
+text += "\n🤲 Пусть Аллах примет ваши молитвы"
+
+bot.send_message(CHAT_ID, text, parse_mode="Markdown")
