@@ -2,11 +2,7 @@ name: Namaz notifications
 
 on:
   schedule:
-    - cron: "0 2 * * *"
     - cron: "0 6 * * *"
-    - cron: "0 9 * * *"
-    - cron: "0 12 * * *"
-    - cron: "0 15 * * *"
   workflow_dispatch:
 
 jobs:
@@ -22,5 +18,3 @@ jobs:
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
-          CITY: ${{ secrets.CITY }}
-          COUNTRY: ${{ secrets.COUNTRY }}
